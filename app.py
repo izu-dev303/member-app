@@ -1,47 +1,48 @@
-from member import load_members, add_member, delete_member, find_member, update_member
-from flask import Flask, render_template, request, redirect, send_file
+from flask import Flask, render_template, request, redirect, url_for
+import database
 
 app = Flask(__name__)
 
-# 一覧表示
+# 起動時にDBを初期化
+database.init_db()
+
+# メンバー一覧
+# メンバー一覧
 @app.route('/')
-def index():
+def list_members():
     keyword = request.args.get('keyword', '')
-    members = load_members()
+    members = database.get_all_members()
     if keyword:
-        members = [m for m in members if keyword in m['name']]
+        members = [m for m in members if keyword in m[1]]
     return render_template('list.html', members=members, keyword=keyword)
 
-# 追加
+# メンバー追加
 @app.route('/add', methods=['GET', 'POST'])
-def add():
+def add_member():
     if request.method == 'POST':
         name = request.form['name']
-        add_member(name)
-        return redirect('/')
+        email = request.form['email']
+        database.add_member(name, email)
+        return redirect(url_for('list_members'))
     return render_template('add.html')
 
-# 削除
-@app.route('/delete/<int:member_id>')
-def delete(member_id):
-    delete_member(member_id)
-    return redirect('/')
-
-# 編集
+# メンバー編集
 @app.route('/edit/<int:member_id>', methods=['GET', 'POST'])
-def edit(member_id):
-    member = find_member(member_id)
+def edit_member(member_id):
+    members = database.get_all_members()
+    member = next((m for m in members if m[0] == member_id), None)
     if request.method == 'POST':
-        new_name = request.form['name']
-        update_member(member_id, new_name)
-        return redirect('/')
+        name = request.form['name']
+        email = request.form['email']
+        database.update_member(member_id, name, email)
+        return redirect(url_for('list_members'))
     return render_template('edit.html', member=member)
 
-# CSVダウンロード
-@app.route('/download')
-def download():
-    return send_file('members.csv', as_attachment=True)
+# メンバー削除
+@app.route('/delete/<int:member_id>')
+def delete_member(member_id):
+    database.delete_member(member_id)
+    return redirect(url_for('list_members'))
 
 if __name__ == '__main__':
     app.run(debug=True)
- 

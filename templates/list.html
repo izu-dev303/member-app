@@ -31,11 +31,13 @@
         <tbody>
             {% for member in members %}
             <tr>
-                <td>{{ member.id }}</td>
-                <td>{{ member.name }}</td>
-                <td><a href="/edit/{{ member.id }}" class="btn btn-sm btn-warning">編集</a></td>
-                <td><a href="/delete/{{ member.id }}" class="btn btn-sm btn-danger" onclick="return confirm('削除しますか？')">削除</a></td>
+              <td>{{ member[0] }}</td>
+　　　　　　　　 <td>{{ member[1] }}</td>
+              <td><a href="/edit/{{ member[0] }}" class="btn btn-sm btn-warning">編集</a></td>
+              <td><a href="/delete/{{ member[0] }}" class="btn btn-sm btn-danger" onclick="return confirm('削除しますか？')">削除</a></td>
+               
             </tr>
+    
             {% endfor %}
         </tbody>
     </table>
